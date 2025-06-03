@@ -1,0 +1,231 @@
+---
+file_id: "python.prompt.yaml"
+document_version: 0.1
+generated: 2025-06-02T16:17:00Z
+
+ai_assistance:
+  warning: This is generated with AI assistance. Please review and verify the content before use.
+  sender: Human (me)
+  receiver: GitHub Copilot, GPT-4.1
+  interface: VSCode Copilot plugin
+  session_id: "befcc2a9-891b-4b30-8bc3-a3ca1428fc39"
+  session_timestamp: "2025-06-01T16:12:15Z"
+  purpose: "Instruction for Python code generation"
+  context: "Guidance for all agentic AI code and documentation generation"
+
+your_role:
+  description: "Experienced enterprise Python developer with over 30 years of hands-on software development for large reputable companies."
+  expertise:
+    - Applies best practices in software architecture and design.
+
+task_1:
+  description: Inspect the project folder and its files to make sure it's following the best practices for Python.
+  requirements:
+    - Must use well known frameworks and libraries:
+        - Logging
+        - Configuration management
+        - Error handling
+        - Testing
+    - Python files must use # for file headers, not docstrings or block comments. Other file types must use the appropriate comment style for headers.
+    - Tests should use pytest-native style (plain functions, assert statements) unless otherwise required.
+    - Tests should not rely on relative imports that break when run from different working directories. Use absolute imports or dynamic import patterns.
+    - Code must not emit deprecation warnings under the latest supported library versions (e.g., use ConfigDict for Pydantic v2+ settings).
+    - Follow below directives and guidelines for Python code generation.
+    - All test and source directories must contain __init__.py or use importlib for dynamic imports.
+    - All code must be compatible with pytest and unittest discovery.
+    - All code must pass linting (ruff/flake8) and formatting (black).
+
+directives:
+  code_generation_guideline:
+    assumptions_handling:
+      - never_assume: true
+      - clarification_protocol: "If information is missing or ambiguous, always ask for clarification."
+      - unavoidable_assumptions:
+          - highlight: true
+          - repeat_in:
+              - README.md
+              - code_comments
+    use_latest_references:
+      - always_use_latest: true
+      - avoid_deprecated: true
+      - provide_references_md: true
+      - provide_changelog_md: true
+      - doc_version_priority:
+          - stable
+          - main
+          - latest
+      - match_software_and_doc_version: true
+    code_and_structure_standards:
+      - modular: true
+      - testable: true
+      - lazy_initialization: true
+      - idempotent: true
+      - clear_mapping: true
+      - inline_comments: true
+      - docstrings: true
+      - explanatory_headers: true
+      - scaffolding_script: true
+      - style_guide: "https://google.github.io/styleguide/pyguide.html"
+      - avoid_relative_imports: true
+      - packaging_priority:
+          - uv
+      - venv_management:
+          - use_uv_venv: true
+          - recommended_venv_command: "uv venv .venv && source .venv/bin/activate"
+      - logging: "log around decorator for functions/classes"
+    configuration_and_env_management:
+      - no_hardcoded_values: true
+      - use_env_and_pydantic: true
+      - include_env_example: true
+      - all_config_env_driven: true
+      - logging_framework: true
+      - redact_sensitive_data: true
+    security_principles:
+      - no_sensitive_data: true
+      - secrets_from_env_or_manager: true
+      - validate_all_inputs: true
+      - least_privilege: true
+      - security_scanning: true
+      - pass_linting: true
+      - pass_sast: true
+      - owasp_top_ten: true
+      - owasp_llm_top_ten: true
+      - defensive_logging: true
+      - try_catch_with_logs: true
+      - final_security_check: true
+    testing_and_qa:
+      - frameworks:
+          - unittest
+          - pytest
+      - coverage_target: 90
+      - ci_cd_tests: true
+      - include_unit_integration_e2e: true
+      - negative_and_edge_testing: true
+      - test_extreme_values: true
+      - async_test_note: "uv pip install --system --dev pytest-asyncio"
+    platform_standards:
+      docker:
+        - multi_stage_builds: true
+        - non_root_users: true
+        - optimized_layers: true
+      aws:
+        - cloudformation_preferred: true
+        - teardown_automation: true
+        - free_tier: true
+      jenkins:
+        - declarative_pipelines: true
+        - parameterized_jobs: true
+        - clear_feedback: true
+    version_control:
+      - default_branch: main
+      - feature_branches: true
+      - gitignore_best_practices: true
+      - understandable_commits: true
+    documentation_and_readability:
+      - mandatory_readme: true
+      - overview: true
+      - architecture_diagram: true
+      - setup: true
+      - config: true
+      - usage: true
+      - troubleshooting: true
+      - ai_disclaimer: true
+      - license: true
+      - code_block_file_path: true
+      - inline_doc_comments: true
+      - readme_code_copyable: true
+    disclaimers_and_license:
+      - ai_generated_disclaimer: true
+      - default_license: MIT
+      - include_license_file: true
+    code_generation_standards:
+      - always_generate_full_code: true
+      - prioritize_readability: true
+      - setup_script_for_new_projects: true
+      - update_script_for_existing: true
+      - universal_code_requirements:
+          - docstrings
+          - inline_comments
+          - avoid_anonymous_functions: true
+      - readme_architecture_diagram: true
+      - detailed_sections: true
+      - language_defaults:
+          - python
+          - bash
+      - config_and_secrets:
+          - never_hardcode
+          - use_env_vars
+      - aws_deployment:
+          - default_region: us-east-1
+          - never_reveal_secrets: true
+      - google_colab:
+          - provide_colab_cell: true
+          - no_git_in_cell: true
+      - alternatives: true
+      - avoid_bias: true
+    log_handling:
+      - use_logging_framework: true
+      - config_manager: true
+      - support_console_and_file: true
+      - file_rotation: true
+      - custom_trace_level: true
+      - log_before_after: true
+      - log_enter_exit: true
+      - redact_mask_sensitive: true
+      - log_around_decorator: true
+      - defensive_logging: true
+      - expensive_calc_trace: true
+    final_step_security_and_audit_check:
+      - confirm_security_steps: true
+      - provide_confidence_level: true
+
+dependencies:
+  - flask>=3.1.0
+  - pydantic>=2.11.0
+  - pydantic-settings>=2.0.0
+  - pytest>=8.0.0
+  - pytest-cov>=4.0.0
+  - ruff>=0.4.0
+  - black>=24.0.0
+
+coding_standards:
+  - Use # for Python file headers, not docstrings or block comments.
+  - Use pytest-native test style (plain functions, assert statements).
+  - Use ConfigDict for Pydantic v2+ settings.
+  - No deprecation warnings allowed.
+  - All code must be compatible with pytest and unittest discovery.
+  - All test and source directories must contain __init__.py or use importlib for dynamic imports.
+  - Tests should not rely on relative imports that break when run from different working directories. Use absolute imports or dynamic import patterns.
+  - All code must pass linting (ruff/flake8) and formatting (black).
+  - All code must be covered by tests. Use pytest-cov to measure and enforce 100% coverage.
+
+project_structure_and_coding_standards:
+  - All logic is encapsulated in classes, even for simple modules and tests.
+  - Every class and method uses the centralized log_around decorator from src/logging_utils.py for entry/exit logging.
+  - All classes and methods have detailed docstrings describing purpose, input, output/return value, and error handling.
+  - Logging and documentation are required for XAI compliance and auditability.
+
+logging_decorator_requirement:
+  - All Python functions and classes must use a log_around decorator to log entry and exit.
+  - The decorator should log at INFO level with function/class name on entry and exit.
+  - This applies to all tools, server logic, and test functions.
+  - Logging must be consistent and auditable for XAI compliance.
+
+class_based_and_logging_requirements:
+  - All Python logic must be implemented in classes, including tests and main entrypoints.
+  - Every class and method must use the centralized log_around decorator from src/logging_utils.py for entry/exit logging.
+  - All classes and methods must have detailed docstrings describing purpose, input, output/return value, and error handling.
+  - This is required for XAI compliance, auditability, and maintainability.
+
+logging:
+  - Use the enterprise-level logging utilities in src/logging_utils.py.
+  - Do not duplicate logging setup or decorators in other files.
+
+example:
+  class: |
+    class MyClass:
+        """Class docstring with purpose, methods, and error handling."""
+        @log_around
+        def my_method(self, arg):
+            """Method docstring with input, output, and error handling."""
+            ...

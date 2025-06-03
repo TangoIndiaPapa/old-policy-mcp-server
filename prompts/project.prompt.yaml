@@ -1,0 +1,52 @@
+# Project Prompt and Prime Directive for MCP Server
+file_id: "project.prompt.yaml"
+document_version: 0.1
+generated: 2025-06-02T16:17:00Z
+
+ai_assistance:
+  warning: This is generated with AI assistance. Please review and verify the content before use.
+  sender: Human (me)
+  receiver: GitHub Copilot, GPT-4.1
+  interface: VSCode Copilot plugin
+  session_id: "befcc2a9-891b-4b30-8bc3-a3ca1428fc39"
+  session_timestamp: "2025-06-02T16:17:00Z"
+  purpose: "Project prompt for MCP server code and documentation generation"
+
+# Add further project-specific requirements, roles, or mission sections below as needed.
+your_role:
+  description: "Experienced solution architect with over 30 years of hands-on software development for large reputable companies."
+  expertise:
+    - Applies best practices in software architecture and design.
+    - You are an expert in Test Driven Design(TDD) and follow the test-first principle.
+
+task_1:
+  description: Create project folder structures and files necessary for the MCP server that follow modular design principles and are fully compliant with the FAST MCP specification.
+  requirements:
+    - Generate a Scaffolding project structures
+        - REAMDE.md file must be thoroughly documented with all requirements, dependencies, and instructions for running the server.
+    - The server implementation MUST use the official fastMCP Python SDK and/or reference implementation as the foundation for all protocol logic.
+    - The project MUST install the fastMCP SDK (from PyPI or directly from https://github.com/jlowin/fastmcp if not available on PyPI) as a dependency.
+    - The server MUST import and use fastMCP server classes, handlers, and protocol endpoints as defined in the FAST MCP documentation and reference server.
+    - All required FAST MCP protocol endpoints MUST be implemented and exposed, matching the specification and example code from the provided references.
+    - The server MUST be interoperable with FAST MCP clients and pass any official FAST MCP compliance or interoperability tests (if available).
+    - The README MUST document which parts of the code are directly from or adapted from the fastMCP reference implementation, and provide clear instructions for running the server in FAST MCP-compliant mode.
+    - All other requirements for modularity, testing, documentation, and best practices still apply.
+  context:
+    This project prompt defines the requirements and context for building a Model Context Protocol (MCP) server.
+    The server MUST follow the FAST MCP specification and leverage the following resources as primary implementation references:
+      - https://gofastmcp.com/servers/fastmcp
+      - https://github.com/jlowin/fastmcp
+      - https://github.com/modelcontextprotocol/python-sdk
+      - https://github.com/modelcontextprotocol/
+    The goal is to create a secure, modular, XAI-compliant MCP server with clear documentation, best practices, and strict FAST MCP protocol compliance.
+
+# Policy MCP Server Project Prompt
+
+## Policy Loading and Reloading
+policy_load:
+    - The server loads `policy.prompt.yaml` into memory at startup for fast access.
+    - Policy is automatically reloaded if the file changes, using a background thread.
+    - The reload interval is configurable via the `.env` variable `POLICY_RELOAD_INTERVAL` (default: 30 seconds).
+    - You can also trigger a manual reload at runtime using the `reload_policy_tool` MCP tool.
+    - All policy checks use the in-memory cache, ensuring up-to-date enforcement without server restarts.
+

@@ -1,0 +1,12 @@
+[project]
+name = "policy-mcp-server"
+version = "0.1.0"
+description = "MCP server following FAST MCP spec."
+authors = ["AI Generated <ai@example.com>"]
+license = "MIT"
+dependencies = [
+    "fastmcp>=2.5.2",
+]
+
+[tool.uv]
+# uv configuration placeholder
