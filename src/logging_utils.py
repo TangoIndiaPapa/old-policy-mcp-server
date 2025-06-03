@@ -9,6 +9,7 @@
 import logging
 import functools
 import sys
+import os
 
 # Enterprise-level logging setup
 LOG_FORMAT = (
@@ -16,12 +17,16 @@ LOG_FORMAT = (
     "%(filename)s:%(lineno)d | %(funcName)s | %(message)s"
 )
 
+LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
+os.makedirs(LOGS_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOGS_DIR, 'policy-mcp-server.log')
+
 logging.basicConfig(
     level=logging.INFO,
     format=LOG_FORMAT,
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        # Add FileHandler or other handlers as needed for enterprise
+        logging.FileHandler(LOG_FILE, encoding='utf-8'),
+        logging.StreamHandler(sys.stderr),  # Send logs to stderr, not stdout
     ]
 )
 

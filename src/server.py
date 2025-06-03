@@ -20,6 +20,7 @@ logging_utils_spec.loader.exec_module(logging_utils)
 log_around = logging_utils.log_around
 logger = logging_utils.logger
 
+@log_around
 class PolicyMCPServer:
     """
     PolicyMCPServer implements the MCP server logic, including policy enforcement, greeting, and policy reloading.
