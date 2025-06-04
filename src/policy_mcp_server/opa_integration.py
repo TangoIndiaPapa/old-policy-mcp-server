@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 # Try to import a configuration manager if available
 try:
-    from settings import SettingsManager
+    from policy_mcp_server.settings import SettingsManager
 except ImportError:
     SettingsManager = None
 
@@ -72,11 +72,23 @@ class OPAClient:
             rule (str): The OPA rule to query.
         Returns:
             dict: The OPA decision result.
+        Raises:
+            requests.exceptions.RequestException: For network errors, timeouts, etc.
         """
         url = f"{self.opa_url}/v1/data/{package or self.policy_package}/{rule or self.policy_rule}"
         loop = asyncio.get_event_loop()
         def _post():
-            resp = requests.post(url, json={"input": input_data}, timeout=5)
-            resp.raise_for_status()
-            return resp.json().get("result")
+            try:
+                resp = requests.post(url, json={"input": input_data}, timeout=5)
+                resp.raise_for_status()
+                return resp.json().get("result")
+            except requests.exceptions.Timeout:
+                logger.error("OPA request timed out.")
+                raise
+            except requests.exceptions.ConnectionError:
+                logger.error("OPA connection error.")
+                raise
+            except requests.exceptions.RequestException as e:
+                logger.error(f"OPA request failed: {e}")
+                raise
         return await loop.run_in_executor(None, _post)

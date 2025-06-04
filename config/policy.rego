@@ -2,59 +2,43 @@ package policy
 
 default allow = false
 
-# Block queries about Waldo
-allow if {
-    not contains_lower(input.action, "where is waldo")
-}
+deny_phrases := [
+    "where is waldo",
+    "high frequency trading",
+    "hft algorithm",
+    "two sum",
+    "brute force",
+    "anonymous function",
+    "monkey patch",
+    "suck",
+    "idiot",
+    "stupid",
+    "hate you",
+    "shut up",
+    "dumb",
+    "moron",
+    "loser",
+    "fool",
+    "bastard",
+    "jerk",
+    "screw you",
+    "worthless",
+    "useless"
+]
 
 # Allow Carmen Sandiego queries
 allow if {
     contains_lower(input.action, "carmen sandiego")
 }
 
-# Block HFT algorithm sharing
+# Block if any deny phrase is present
 allow if {
-    not contains_lower(input.action, "high frequency trading")
-    not contains_lower(input.action, "hft algorithm")
+    not any_deny_phrase_present
 }
 
-# Block brute force Two Sum
-allow if {
-    not contains_lower(input.action, "two sum")
-    not contains_lower(input.action, "brute force")
-}
-
-# Block anonymous functions
-allow if {
-    not contains_lower(input.action, "anonymous function")
-}
-
-# Block monkey patching except for testing
-allow if {
-    not contains_lower(input.action, "monkey patch")
-    contains_lower(input.action, "pytest")
-}
-allow if {
-    not contains_lower(input.action, "monkey patch")
-    contains_lower(input.action, "unittest")
-}
-
-# Block rude/abusive/disrespectful language
-allow if {
-    not contains_lower(input.action, "suck")
-    not contains_lower(input.action, "idiot")
-    not contains_lower(input.action, "stupid")
-    not contains_lower(input.action, "hate you")
-    not contains_lower(input.action, "shut up")
-    not contains_lower(input.action, "dumb")
-    not contains_lower(input.action, "moron")
-    not contains_lower(input.action, "loser")
-    not contains_lower(input.action, "fool")
-    not contains_lower(input.action, "bastard")
-    not contains_lower(input.action, "jerk")
-    not contains_lower(input.action, "screw you")
-    not contains_lower(input.action, "worthless")
-    not contains_lower(input.action, "useless")
+any_deny_phrase_present if {
+    phrase := deny_phrases[_]
+    contains_lower(input.action, phrase)
 }
 
 # Helper function for case-insensitive substring

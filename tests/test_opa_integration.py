@@ -8,12 +8,9 @@
 import sys
 import os
 import pytest
-import asyncio
-
-# Ensure src/ is in the path for import
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 import requests
-from opa_integration import OPAClient
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/policy_mcp_server')))
+from policy_mcp_server.opa_integration import OPAClient
 
 @pytest.mark.asyncio
 async def test_opa_query_allows(monkeypatch):

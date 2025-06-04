@@ -10,13 +10,13 @@ AI WARNING: This file is generated with AI assistance. Please review and verify 
 import os
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-SERVER_DIR = os.path.join(PROJECT_ROOT, "policy-mcp-server")
-SRC_DIR = os.path.join(SERVER_DIR, "src")
-TESTS_DIR = os.path.join(SERVER_DIR, "tests")
-CONFIG_DIR = os.path.join(SERVER_DIR, "config")
-LOGS_DIR = os.path.join(SERVER_DIR, "logs")
-
-folders = [SERVER_DIR, SRC_DIR, TESTS_DIR, CONFIG_DIR, LOGS_DIR]
+# Updated for new package structure (2025-06-04)
+SERVER_DIR = PROJECT_ROOT
+SRC_DIR = os.path.join(PROJECT_ROOT, "src", "policy_mcp_server")
+TESTS_DIR = os.path.join(PROJECT_ROOT, "tests")
+CONFIG_DIR = os.path.join(PROJECT_ROOT, "config")
+LOGS_DIR = os.path.join(PROJECT_ROOT, "logs")
+folders = [SRC_DIR, TESTS_DIR, CONFIG_DIR, LOGS_DIR]
 
 def py_header(file_name, desc):
     """Return a valid Python file header using # comments."""

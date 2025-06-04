@@ -10,13 +10,9 @@
 import sys
 import importlib.util
 import os
+from policy_mcp_server.logging_utils import log_around, logger
 
 src_path = os.path.abspath(os.path.dirname(__file__))
-logging_utils_spec = importlib.util.spec_from_file_location("logging_utils", os.path.join(src_path, "logging_utils.py"))
-logging_utils = importlib.util.module_from_spec(logging_utils_spec)
-logging_utils_spec.loader.exec_module(logging_utils)
-log_around = logging_utils.log_around
-logger = logging_utils.logger
 
 class MainRunner:
     """

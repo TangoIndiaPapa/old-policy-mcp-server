@@ -13,11 +13,17 @@ import os
 
 # OTEL imports
 try:
-    from opentelemetry import trace
-    from opentelemetry.trace import get_tracer
-    tracer = get_tracer(__name__)
+    from opentelemetry import trace, metrics
+    tracer = trace.get_tracer(__name__)
+    meter = metrics.get_meter(__name__)
+    policy_eval_counter = meter.create_counter(
+        name="policy_evaluations",
+        description="Number of policy evaluations",
+        unit="1"
+    )
 except ImportError:
     tracer = None
+    policy_eval_counter = None
 
 # Enterprise-level logging setup
 LOG_FORMAT = (
@@ -60,12 +66,37 @@ class LoggingUtils:
                 with tracer.start_as_current_span(func.__qualname__):
                     result = func(*args, **kwargs)
                     logger.debug(f"TRACE: {func.__qualname__} | result={result}")
-            else:                
+            else:
                 result = func(*args, **kwargs)
-                logger.warning(f"NO TRACE FOUND: {func.__qualname__} | result={result}")
+                logger.debug(f"NO TRACE FOUND: {func.__qualname__} | result={result}")
 
             logger.info(f"EXIT: {func.__qualname__} | result={result}")
             return result
         return wrapper
 
+    @staticmethod
+    def otel_trace(span_name=None):
+        """
+        Explicit OTEL tracing decorator for finer-grained control over tracing.
+        """
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                with tracer.start_as_current_span(span_name or func.__name__) as span:
+                    # Add custom attributes if available in kwargs
+                    context = kwargs.get('context', {})
+                    if isinstance(context, dict):
+                        for k, v in context.items():
+                            span.set_attribute(f"context.{k}", v)
+                    result = func(*args, **kwargs)
+                    # Add policy decision to span if present
+                    if isinstance(result, dict) and 'result' in result:
+                        span.set_attribute("policy.decision", str(result['result']))
+                    # Increment custom metric
+                    policy_eval_counter.add(1)
+                    return result
+            return wrapper
+        return decorator
+
 log_around = LoggingUtils.log_around
+otel_trace = LoggingUtils.otel_trace

@@ -2,7 +2,9 @@
 name = "policy-mcp-server"
 version = "0.1.0"
 description = "MCP server following FAST MCP spec."
-authors = ["AI Generated <ai@example.com>"]
+authors = [
+    { name = "AI Generated", email = "ai@example.com" }
+]
 license = "MIT"
 dependencies = [
     "fastmcp>=2.5.2",

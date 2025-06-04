@@ -23,7 +23,8 @@ except ImportError:
     except ImportError:
         OPAClient = None  # Fallback for error reporting
 
-from settings import SettingsManager
+from policy_mcp_server.settings import SettingsManager
+from policy_mcp_server.logging_utils import log_around, logger, otel_trace
 
 
 src_path = os.path.abspath(os.path.dirname(__file__))
@@ -109,6 +110,7 @@ class PolicyMCPServer:
         except Exception as e:
             return f"Failed to reload policy: {e}"
 
+    @otel_trace("enforce_policy")
     @log_around
     def enforce_policy(self, action: str, context: dict = None) -> dict:
         """
@@ -136,51 +138,58 @@ class PolicyMCPServer:
         # Default allow: only block if a violation is detected
         return {'result': 'compliant'}
 
-    @log_around
-    def enforce_policy_tool(self, action: str, context: dict = None) -> dict:
+    def _run_async(self, coro):
         """
-        MCP tool wrapper for enforce_policy. Returns a structured response for the MCP client.
-        Args:
-            action (str): The action/tool name or user prompt to check.
-            context (dict, optional): Additional context for the action (parameters, user info, etc).
-        Returns:
-            dict: {'result': 'compliant'} if allowed, or {'result': 'not compliant', 'reason': ...}
+        Helper to run an async coroutine from a synchronous context.
+        This is required because fastmcp tools are synchronous, but OPAClient is async.
+        If fastmcp adds async tool support, refactor to use async/await throughout.
         """
-        result = self.enforce_policy(action, context)
-        # Always return a structured response, so the client can continue and forward input if compliant
-        return result
+        try:
+            loop = asyncio.get_running_loop()
+            import nest_asyncio
+            nest_asyncio.apply()
+            return loop.run_until_complete(coro)
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            return loop.run_until_complete(coro)
+        except Exception as e:
+            logger.error(f"Error running async coroutine: {e}")
+            raise
 
+    @otel_trace("enforce_policy_opa")
     @log_around
-    def enforce_policy_opa(self, action: str, context: dict = None) -> dict:
+    def enforce_policy_opa(self, action: str, context: dict = None, opa_client_class=None) -> dict:
         """
         Enforce policy using OPA via REST API. This is a synchronous wrapper for the async OPAClient query.
+        This workaround is required because fastmcp tools are synchronous. If fastmcp supports async tools,
+        refactor this method to be async and use await directly.
         Args:
             action (str): The action/tool name or user prompt to check.
             context (dict, optional): Additional context for the action (parameters, user info, etc).
+            opa_client_class (type, optional): For testing, allow injection of a custom OPAClient class.
         Returns:
             dict: OPA decision result or error.
         """
-        if OPAClient is None:
-            return {"result": "error", "reason": "OPAClient import failed"}
+        if opa_client_class is None:
+            try:
+                from policy_mcp_server.opa_integration import OPAClient as opa_client_class
+            except ImportError:
+                logger.error("OPAClient import failed in enforce_policy_opa.")
+                return {"result": "error", "reason": "OPAClient import failed"}
         input_data = {"action": action}
         if context:
             input_data.update(context)
-        opa = OPAClient()
+        # Only pass opa_url for real OPAClient, not for test fakes
+        if opa_client_class.__name__ == "OPAClient":
+            opa = opa_client_class(opa_url="http://opa-server:8181")
+        else:
+            opa = opa_client_class()
         try:
-            try:
-                loop = asyncio.get_running_loop()
-                # If we're already in an event loop, schedule the coroutine and wait for it
-                import nest_asyncio
-                nest_asyncio.apply()
-                coro = opa.query(input_data)
-                result = loop.run_until_complete(coro)
-            except RuntimeError:
-                # No event loop running, safe to use run_until_complete
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                result = loop.run_until_complete(opa.query(input_data))
+            result = self._run_async(opa.query(input_data))
             return {"result": result}
         except Exception as e:
+            logger.error(f"OPA policy enforcement failed: {e}")
             return {"result": "error", "reason": str(e)}
 
     @log_around

@@ -20,8 +20,8 @@ from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExp
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 import logging
 
-from src.settings import SettingsManager
-from src.logging_utils import logger
+from policy_mcp_server.settings import SettingsManager
+from policy_mcp_server.logging_utils import logger
 
 class OTELSetup:
     """
@@ -56,14 +56,14 @@ class OTELSetup:
             metric_exporter = OTLPMetricExporter(
                 endpoint=self.settings.OTEL_EXPORTER_OTLP_ENDPOINT
             )
-            # PrometheusMetricReader is used for Prometheus scraping
             prometheus_reader = PrometheusMetricReader()
             self.meter_provider = MeterProvider(
                 resource=resource,
                 metric_readers=[prometheus_reader]
             )
-            # No set_meter_provider in 1.33.1; MeterProvider is set globally by instantiation
-
+            # Explicitly set meter provider for metrics
+            from opentelemetry import metrics as otel_metrics
+            otel_metrics.set_meter_provider(self.meter_provider)
             logger.info("OpenTelemetry tracing and metrics initialized successfully.")
         except Exception as e:
             logger.warning(f"OTEL setup failed or degraded gracefully: {e}")
