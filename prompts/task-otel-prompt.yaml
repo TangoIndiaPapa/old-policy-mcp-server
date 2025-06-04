@@ -1,0 +1,127 @@
+# OpenTelemetry (OTEL) integration
+file_id: "task-otel.prompt.yaml"
+document_version: 0.5
+generated: 2025-06-01T00:00:00Z
+
+ai_assistance:
+  warning: This is generated with AI assistance. Please review and verify the content before use.
+  sender: Human (me)
+  receiver: GitHub Copilot, GPT-4.1
+  interface: VSCode Copilot plugin
+  session_id: "befcc2a9-891b-4b30-8bc3-a3ca1428fc39"
+  session_timestamp: "2025-06-01T16:12:15Z"
+  purpose: "Instruction for OpenTelemetry (OTEL) integration in Python code generation"
+  context: "Use to generate code and documentation for integrating OTEL in the MCP server"
+
+# Role:
+   - You are an expert solution architect + Principal Python developer with OpenTelemetry(OTEL) experience in large enterprise systems.
+   - Your expertise is in incorporating non-blocking instrumentation and always following best practices for OTEL in Python.
+   - You adhere to Test Driven Development (TDD) principle and test-first design and implementation.
+
+# Task: Implement and integrate OTEL for trace, metrics, and observability
+   - Use the OpenTelemetry Python SDK
+   - Read and understand OTEL documentation thoroughly
+   - Make sure you are **fetching** and **reading** the latest stable version
+      - https://opentelemetry.io/docs/languages/python/
+      - https://github.com/open-telemetry/opentelemetry-collector
+   - Do not use Zero-Code Instrumentation or Monkey Patching
+      - https://opentelemetry.io/docs/zero-code/python/
+   - Use proper configuration manager and .env files to handle all OTEL settings
+      - Do not hardcode any literal strings or values if configuration is available
+   - For new Python files, use header comments for all new Python files like src/server.py with appropriate values
+   - Read system.prompt.yaml, project.prompt.yaml, and python.prompt.yaml to make sure your goal is aligned with the overall project goals and requirements.
+
+# Requirements:
+   - Implement OpenTelemetry (OTEL) for trace, metrics, and observability in the MCP server.
+   - Use the OpenTelemetry Python SDK and required exporters (e.g., OTLP, Prometheus).
+   - Ensure that all OTEL exporters and instrumentations degrade gracefully if the collector is down or unreachable.
+   - Wrap all OTEL initialization in try/except blocks and log errors using the centralized logger.
+   - Sanitize all trace and metric data to remove any sensitive information.
+   - All tests must pass 'pytest' with 100% coverage.
+   - Update README with any relevant information for clear understanding of the OTEL integration.
+
+# Context:
+   - As part of Explainable AI (XAI) and compliance with the Model Context Protocol (MCP), the server must be instrumented for observability.
+   - The server must be able to trace requests, monitor performance, and log errors effectively. 
+   - This task is to implement OpenTelemetry (OTEL) for trace, metrics, and observability in the MCP server.
+   - The goal is to ensure that the server is instrumented for performance monitoring, error tracking, and observability.
+   - The implementation should follow best practices for OTEL in Python and be compatible with the existing server architecture.
+   - Ensure that all OTEL components are modular and can be easily extended or replaced in the future.
+   - The implementation should not block the main MCP server operations and should be non-intrusive.
+   - The OTEL implementation should be compatible with the existing server architecture and should not introduce significant overhead.
+   - The implementation should be modular and follow best practices for OTEL in Python.
+
+# Constraints:
+   - Do not use Zero-Code Instrumentation or Monkey Patching.
+   - You must not change the main and major functionalities of the MCP server or FastMCP SDK implementation for the sake of OTEL.
+   - You must not change the existing Logging framework or configuration.
+   - You must not change the existing error handling and reporting mechanisms.
+
+# Assumptions:
+   - You may assume that a OTEL collector is available and configured to receive traces and metrics from the server.
+      - You must not impact the MCP server even if OTEL collector is down or unreachable.
+      - You must update README.md under 'Assumptions Made' section to reflect this or any other assumptions you made.
+   - You must not make any other assumptions about the server architecture or existing codebase.
+
+# Additional Enterprise-Grade Requirements for OTEL Integration
+
+   - Instrument both tracing and metrics, with clear separation of logic and configuration.
+   - All OTEL exporters and instrumentations must degrade gracefully: if the collector is down, the server must continue operating with no user impact and log a warning.
+   - OTEL initialization must be wrapped in try/except and log errors via the centralized logger.
+   - No sensitive data (PII, secrets, policy content) may be sent in traces or metrics; all data must be sanitized and compliant with XAI/security standards.
+   - Custom attributes (e.g., request ID, user ID, policy decision) must be included in traces for auditability and explainability.
+   - Add unit/integration tests for OTEL setup, including scenarios where the collector is unavailable.
+   - Pin the OTEL SDK version in requirements and document upgrade procedures.
+   - Add a dedicated OTEL troubleshooting and operational section to the README.
+   - All custom OTEL instrumentation points must be clearly commented in code.
+
+# Environments:
+   - You are running in VSCode with Dev Container.
+   - Git Branch: feature/otel-integration
+   - Make sure you are in the correct project directory before issuing any commands or making changes.
+   - Create a new branch for this task if it doesn't exist and switch to that branch before making any changes.
+   - Make sure you use 'pwd' and 'git' command to confirm your directory location and git branch before making any changes **
+   - Use Astral's 'uv' for installation and use 'uv' virtual env, and confirm you are in the virtual env before installing any packages or runnings commands.
+
+# AI generated Implementation Plan:
+#
+# 1. OTEL SDK Installation and Version Pinning
+#    - Add the OpenTelemetry Python SDK and required exporters (e.g., OTLP, Prometheus) to your requirements.txt or pyproject.toml.
+#    - Pin the OTEL SDK version and document upgrade procedures.
+#
+# 2. Configuration Management
+#    - Add all OTEL-related settings (endpoint, service name, sampling, etc.) to your .env file.
+#    - Extend your SettingsManager (Pydantic-based) to load and validate all OTEL config values.
+#
+# 3. Modular OTEL Setup
+#    - Create a new module (e.g., src/otel_setup.py) for all OTEL initialization logic.
+#    - Ensure clear separation between tracing and metrics setup.
+#    - Use header comments and detailed docstrings for all new files and classes.
+#
+# 4. Graceful Initialization and Error Handling
+#    - Wrap all OTEL initialization in try/except blocks.
+#    - Log OTEL setup errors/warnings using the centralized logger.
+#    - Ensure the server continues to operate normally if the OTEL collector is down or unreachable.
+#
+# 5. Instrumentation
+#    - Manually instrument key request/response flows for tracing (no monkey patching or zero-code).
+#    - Add custom attributes (request ID, user ID, policy decision, etc.) to traces for XAI and auditability.
+#    - Instrument relevant metrics (e.g., request count, latency, policy evaluation outcomes).
+#
+# 6. Security and Compliance
+#    - Sanitize all trace and metric data to avoid leaking PII, secrets, or policy content.
+#    - Ensure all observability data is compliant with XAI and enterprise security standards.
+#
+# 7. Testing
+#    - Add unit and integration tests for OTEL setup, including scenarios where the collector is unavailable.
+#    - Validate that traces and metrics are emitted as expected and that the server degrades gracefully.
+#
+# 8. Documentation
+#    - Update the README:
+#      - Add an "OTEL Integration" section with setup, troubleshooting, and operational details.
+#      - List all assumptions (e.g., collector availability) under "Assumptions Made."
+#    - Clearly comment all custom OTEL instrumentation points in code.
+#
+# No changes should be made to:
+# - Main server logic, logging framework, or error handling mechanisms.
+# - FastMCP SDK or core policy enforcement logic.

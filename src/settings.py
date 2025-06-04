@@ -35,6 +35,13 @@ class SettingsManager:
         POLICY_PATH: str = os.getenv("POLICY_PATH", os.path.abspath(os.path.join(os.path.dirname(__file__), '../prompts/policy.prompt.yaml')))
         RUDE_WORDS: str = os.getenv("RUDE_WORDS", "suck,idiot,stupid,hate you,shut up,dumb,moron,loser,fool,bastard,jerk,screw you,worthless,useless")
         POLICY_RELOAD_INTERVAL: int = int(os.getenv("POLICY_RELOAD_INTERVAL", 30))
+        OTEL_SERVICE_NAME: str = os.getenv("OTEL_SERVICE_NAME", "policy-mcp-server")
+        OTEL_EXPORTER_OTLP_ENDPOINT: str = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+        OTEL_EXPORTER_OTLP_PROTOCOL: str = os.getenv("OTEL_EXPORTER_OTLP_PROTOCOL", "grpc")
+        OTEL_TRACES_SAMPLER: str = os.getenv("OTEL_TRACES_SAMPLER", "parentbased_always_on")
+        OTEL_TRACES_SAMPLER_ARG: float = float(os.getenv("OTEL_TRACES_SAMPLER_ARG", 1.0))
+        OTEL_METRICS_EXPORT_INTERVAL: int = int(os.getenv("OTEL_METRICS_EXPORT_INTERVAL", 60000))
+        OTEL_RESOURCE_ATTRIBUTES: str = os.getenv("OTEL_RESOURCE_ATTRIBUTES", "deployment.environment=dev")
 
         class Config:
             env_file = '.env'

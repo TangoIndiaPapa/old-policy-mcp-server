@@ -46,7 +46,19 @@ A Model Context Protocol (MCP) server following the FAST MCP specification. Modu
          |
          v
 +--------+----------+
-|   Storage/Config  |
+|  Policy Enforcement|
+|   (OPA REST API)   |
++--------+----------+
+         |
+         v
++--------+----------+
+|   OPA Server      |
+| (Rego + Data)     |
++--------+----------+
+         |
+         v
++--------+----------+
+| DB/Storage/Config |
 +-------------------+
 ```
 
@@ -57,6 +69,7 @@ policy-mcp-server/
   src/
   tests/
   config/
+  images/
   logs/
   README.md
   .env.example
@@ -152,6 +165,10 @@ To use this server with the MCP extension or compatible clients, add the followi
 - Alternatively, update your Windows `PATH` so that the correct Python and installed packages are found by VS Code.
 - If you see errors like `No module named fastmcp`, it means the extension is using a Python environment that does not have the package installed.
 
+**If you are testing from Dev Container to check OPA docker, then you need to provide external network:**
+- Put this in your devcontainer.json and restart Dev Container:
+  - "runArgs": ["--network=policy-mcp-net"]
+
 **Summary:**
 - Dev Container: install and test inside the container for Linux-based workflows.
 - VS Code MCP extension: ensure your Windows Python has all dependencies for the server to launch and run.
@@ -170,13 +187,13 @@ You can test the policy enforcement tool using the MCP extension chat or any com
 - The server will respond with a compliance result based on your policy configuration and logic.
 
 ### Example Result Screenshot
-![enforce_policy result example](ask.png)
+![enforce_policy result example](images/ask.png)
 
 ### MCP Server 
-![enforce_policy result example](enforce.png)
+![enforce_policy result example](images/enforce.png)
 
 ### Agent Response
-![enforce_policy result example](enforce-result.png)
+![enforce_policy result example](images/enforce-result.png)
 
 ## Extending the MCP Server
 
@@ -190,9 +207,115 @@ def my_tool(...):
 
 See `src/server.py` for examples.
 
-## License
+## OpenTelemetry (OTEL) Observability & Tracing
 
-This project is licensed under the [MIT License](LICENSE.md).
+This server is instrumented with [OpenTelemetry](https://opentelemetry.io/docs/languages/python/) for distributed tracing, metrics, and observability. All configuration is managed via `.env` and the `SettingsManager` (see `.env.example`).
 
----
-Copyright (c) 2025 TangoIndiaPapa. All rights reserved.
+### Features
+- **Tracing:** All requests and policy enforcement actions are traced using OTEL. Traces are exported to the configured OTLP endpoint.
+- **Metrics:** Key server metrics are exported via OTLP and Prometheus. Prometheus scraping is enabled by default.
+- **Graceful Degradation:** If the OTEL collector is unavailable, the server logs a warning and continues running without blocking.
+- **Data Sanitization:** All trace and metric data is sanitized to avoid leaking sensitive information.
+
+### Configuration
+Set the following variables in your `.env` file (see `.env.example`):
+
+```
+OTEL_SERVICE_NAME=policy-mcp-server
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+OTEL_TRACES_SAMPLER=parentbased_always_on
+OTEL_TRACES_SAMPLER_ARG=1.0
+OTEL_METRICS_EXPORT_INTERVAL=60000
+OTEL_RESOURCE_ATTRIBUTES=deployment.environment=dev
+```
+
+### Metrics & Prometheus
+- The server exposes Prometheus metrics via the OpenTelemetry Prometheus exporter.
+- Configure your Prometheus server to scrape the metrics endpoint as needed.
+
+### Troubleshooting
+- If the OTEL collector is down or unreachable, the server will log a warning but continue to operate.
+- Check logs for messages like `OTEL setup failed or degraded gracefully` for diagnostics.
+- Ensure all OTEL environment variables are set correctly in `.env`.
+- For more details, see [OpenTelemetry Python Docs](https://opentelemetry.io/docs/languages/python/).
+
+### Testing OTEL Integration
+- Run `pytest` to verify all OTEL setup and graceful degradation scenarios are covered.
+- You can also check your OTEL backend (Jaeger, Prometheus, etc.) for traces and metrics from `policy-mcp-server`.
+
+### Assumptions
+- No zero-code/monkey patching is used; all instrumentation is explicit and modular.
+- All OTEL config is managed via `.env` and Pydantic settings.
+- The code is compatible with OpenTelemetry Python SDK 1.33.1 and Prometheus exporter 0.54b1.
+
+## OPA (Open Policy Agent) Integration
+
+This server supports policy enforcement using [Open Policy Agent (OPA)](https://www.openpolicyagent.org/). OPA is run as a sidecar (Docker container) and all policy decisions are delegated to OPA via REST API.
+
+### OPA Setup & Configuration
+
+1. **Install Docker** (if not already installed):
+   - [Docker installation guide](https://docs.docker.com/get-docker/)
+
+2. **Start OPA with Docker Compose:**
+   ```bash
+   docker network create policy-mcp-net
+   docker compose -f docker-compose-opa.yaml up -d
+   ```
+   This will start OPA on port 8181 and mount your policy and data from the `prompts/` directory.
+   
+   **If you are testing from Dev Container to check OPA docker, then you need to provide external network:**
+      - Put this in your devcontainer.json and restart Dev Container:
+      - "runArgs": ["--network=policy-mcp-net"]
+
+3. **OPA Configuration Variables** (in `.env` or `.env.example`):
+   ```env
+   OPA_URL=http://localhost:8181
+   OPA_POLICY_PACKAGE=policy
+   OPA_POLICY_RULE=allow
+   ```
+   These are loaded automatically by the server and can be customized as needed.
+
+4. **Verify OPA is Running:**
+   ```bash
+   curl http://localhost:8181/health
+   # Should return {"healthy":true}
+   ```
+
+5. **Test OPA Policy via REST API:**
+   ```bash
+   curl -X POST -H "Content-Type: application/json" \
+     --data '{"input": {"action": "where is carmen sandiego?"}}' \
+     http://localhost:8181/v1/data/policy/allow
+   # Should return {"result": true} if allowed by policy
+   ```
+
+### Running the MCP Server with OPA
+
+- Ensure OPA is running (see above).
+- Start the MCP server as usual:
+  ```bash
+  python src/server.py
+  ```
+- The server will use OPA for policy enforcement if you use the `#enforce_policy_opa` tool or endpoint.
+
+### Running Tests
+
+- **Unit and Integration Tests:**
+  ```bash
+  pytest
+  ```
+  This will run all tests, including those that verify OPA integration and policy enforcement.
+
+- **End-to-End OPA Test:**
+  - The test suite includes tests that start OPA, load the policy, and verify compliant/non-compliant queries.
+  - See `tests/test_policy_opa_e2e.py` for examples.
+
+### Troubleshooting OPA
+- If you see `null` or `{}` as a result, check that your `policy.rego` is present and valid in the `prompts/` directory.
+- Check OPA logs with:
+  ```bash
+  docker compose logs opa
+  ```
+- Use the provided `start_opa_and_verify.sh` script for automated OPA

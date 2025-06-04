@@ -1,0 +1,26 @@
+# File Name: task-opa.plan.yml
+# File description: OPA (Open Policy Agent) integration for policy enforcement in the MCP server.
+# Source prompt file: task-opa.prompt.yaml
+# Author: AI Generated
+# Date created: 2025-06-03
+# Version number: 0.2
+# AI WARNING: This file is generated with AI assistance. Please review and verify the content before use.
+
+ai_implementation_plan:
+  - Confirm you are on the 'feature/opa-integration' branch and in the correct project directory before making any changes.
+  - Download the OPA binary for Linux and add it to the project or system path.
+  - Start OPA as a server (e.g., ./opa run --server --addr localhost:8181) and ensure it loads the policy from 'prompts/policy.prompt.json' (converted to Rego if needed).
+  - Use the configuration manager and .env files for all OPA settings—do not hardcode any values (e.g., OPA server address, policy file path).
+  - In Python, use the requests library to interact with the OPA REST API (https://www.openpolicyagent.org/docs/rest-api) for policy queries.
+  - For any new Python files, include header comments similar to src/server.py (author, date, version, AI warning, etc).
+  - Implement an async, non-blocking OPA policy evaluation function in a new Python module (e.g., src/opa_integration.py) that queries the OPA REST API.
+  - Integrate OPA policy checks into the MCP server's policy enforcement logic, without refactoring or restructuring existing codebase, logging, or error handling.
+  - Ensure all OPA exporters and instrumentations degrade gracefully if the collector is down or unreachable.
+  - Write unit tests for OPA integration, following TDD and achieving 100% coverage with pytest.
+  - Update README with OPA integration details and usage instructions.
+
+constraints:
+  - Do not change the main and major functionalities of the MCP server or FastMCP SDK implementation for the sake of OPA.
+  - Do not change the existing Logging framework or configuration.
+  - Do not change the existing error handling and reporting mechanisms.
+  - Do not make any other assumptions about the server architecture or existing codebase.

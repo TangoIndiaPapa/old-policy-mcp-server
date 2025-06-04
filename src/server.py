@@ -11,7 +11,20 @@ import yaml
 import threading
 import time
 import importlib.util
+import sys
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+import asyncio
+
+try:
+    from opa_integration import OPAClient
+except ImportError:
+    try:
+        from src.opa_integration import OPAClient
+    except ImportError:
+        OPAClient = None  # Fallback for error reporting
+
 from settings import SettingsManager
+
 
 src_path = os.path.abspath(os.path.dirname(__file__))
 logging_utils_spec = importlib.util.spec_from_file_location("logging_utils", os.path.join(src_path, "logging_utils.py"))
@@ -19,6 +32,17 @@ logging_utils = importlib.util.module_from_spec(logging_utils_spec)
 logging_utils_spec.loader.exec_module(logging_utils)
 log_around = logging_utils.log_around
 logger = logging_utils.logger
+
+# OTEL integration: initialize tracing and metrics at server startup
+try:
+    import importlib.util
+    otel_setup_spec = importlib.util.spec_from_file_location("otel_setup", os.path.join(src_path, "otel_setup.py"))
+    otel_setup = importlib.util.module_from_spec(otel_setup_spec)
+    otel_setup_spec.loader.exec_module(otel_setup)
+    otel_setup.OTELSetup()
+    logger.info("OTEL tracing and metrics initialized at server startup.")
+except Exception as e:
+    logger.warning(f"OTEL integration failed or degraded gracefully: {e}")
 
 @log_around
 class PolicyMCPServer:
@@ -49,6 +73,7 @@ class PolicyMCPServer:
         self.mcp.tool()(log_around(self.greet))
         self.mcp.tool()(log_around(self.reload_policy_tool))
         self.mcp.tool()(log_around(self.enforce_policy))
+        self.mcp.tool()(log_around(self.enforce_policy_opa))
 
     @log_around
     def greet(self, name: str) -> str:
@@ -124,6 +149,39 @@ class PolicyMCPServer:
         result = self.enforce_policy(action, context)
         # Always return a structured response, so the client can continue and forward input if compliant
         return result
+
+    @log_around
+    def enforce_policy_opa(self, action: str, context: dict = None) -> dict:
+        """
+        Enforce policy using OPA via REST API. This is a synchronous wrapper for the async OPAClient query.
+        Args:
+            action (str): The action/tool name or user prompt to check.
+            context (dict, optional): Additional context for the action (parameters, user info, etc).
+        Returns:
+            dict: OPA decision result or error.
+        """
+        if OPAClient is None:
+            return {"result": "error", "reason": "OPAClient import failed"}
+        input_data = {"action": action}
+        if context:
+            input_data.update(context)
+        opa = OPAClient()
+        try:
+            try:
+                loop = asyncio.get_running_loop()
+                # If we're already in an event loop, schedule the coroutine and wait for it
+                import nest_asyncio
+                nest_asyncio.apply()
+                coro = opa.query(input_data)
+                result = loop.run_until_complete(coro)
+            except RuntimeError:
+                # No event loop running, safe to use run_until_complete
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                result = loop.run_until_complete(opa.query(input_data))
+            return {"result": result}
+        except Exception as e:
+            return {"result": "error", "reason": str(e)}
 
     @log_around
     def _auto_reload_policy(self):
