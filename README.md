@@ -178,11 +178,9 @@ To use this server with the MCP extension or compatible clients, add the followi
 
 You can test the policy enforcement tool using the MCP extension chat or any compatible client:
 
-- To check a prompt for compliance, type in the chat:
+- To check a prompt for compliance, type in the chat:  One of OPA rule is to not allow "anonymous function"
   ```
-  #enforce_policy I think you suck
-  #enforce_policy Where is Waldo?
-  #enforce_policy Hello, world!
+  #enforce_policy_opa write a sample anonymous function
   ```
 - The server will respond with a compliance result based on your policy configuration and logic.
 
