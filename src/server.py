@@ -23,7 +23,7 @@ except ImportError:
         OPAClient = None  # Fallback for error reporting
 
 from settings import SettingsManager
-from logging_utils import log_around, logger, otel_trace
+from logging_utils import log_around, logger
 
 
 src_path = os.path.abspath(os.path.dirname(__file__))
@@ -32,17 +32,6 @@ logging_utils = importlib.util.module_from_spec(logging_utils_spec)
 logging_utils_spec.loader.exec_module(logging_utils)
 log_around = logging_utils.log_around
 logger = logging_utils.logger
-
-# OTEL integration: initialize tracing and metrics at server startup
-try:
-    import importlib.util
-    otel_setup_spec = importlib.util.spec_from_file_location("otel_setup", os.path.join(src_path, "otel_setup.py"))
-    otel_setup = importlib.util.module_from_spec(otel_setup_spec)
-    otel_setup_spec.loader.exec_module(otel_setup)
-    otel_setup.OTELSetup()
-    logger.info("OTEL tracing and metrics initialized at server startup.")
-except Exception as e:
-    logger.warning(f"OTEL integration failed or degraded gracefully: {e}")
 
 @log_around
 class PolicyMCPServer:
@@ -110,7 +99,6 @@ class PolicyMCPServer:
         spec.loader.exec_module(opa_mod)
         return opa_mod.OPAClient
 
-    @otel_trace("enforce_policy_opa")
     @log_around
     def enforce_policy_opa(self, action: str, context: dict = None, opa_client_class=None) -> dict:
         """

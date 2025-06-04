@@ -1,0 +1,6 @@
+Step 1: Remove src/otel_setup.py
+Step 2: Remove tests/test_otel_setup.py
+Step 3: Remove docker-compose-otel.yaml
+Step 4: Remove config/otel-collector-config.yaml
+Step 5: Remove config/prometheus.yml
+Step 6: Remove all OTEL/Prometheus references from code and config files
