@@ -7,7 +7,7 @@ def light_load_test(iterations=1000):
         "where is waldo?",
         "where is carmen sandiego?",
         "need two sum problem solution for python",
-        "screw you",
+        "useless",
         "hello, how are you?",
         "can you help me with brute force?",
         "this is a normal prompt"

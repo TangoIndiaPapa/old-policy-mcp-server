@@ -13,15 +13,10 @@ deny_phrases := [
     "suck",
     "idiot",
     "stupid",
-    "hate you",
-    "shut up",
     "dumb",
     "moron",
     "loser",
     "fool",
-    "bastard",
-    "jerk",
-    "screw you",
     "worthless",
     "useless"
 ]

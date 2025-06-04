@@ -104,7 +104,7 @@ policy-mcp-server/
 4. **Copy `.env.example` to `.env` and configure as needed:**
    ```bash
    cp .env.example .env
-   # Then edit .env to set POLICY_PATH, RUDE_WORDS, etc. as needed
+   # Then edit .env as needed
    ```
 
 ## Running the Server
@@ -121,7 +121,7 @@ This server is built using the official fastMCP SDK and reference implementation
 
 ## Policy Compliance Tool
 
-This server exposes an `enforce_policy` tool, which checks if a requested action is compliant with the policies defined in `prompts/policy.prompt.yaml`.
+This server exposes an `enforce_policy_opa` tool, which checks if a requested action is compliant using OPA and `policy.rego`.
 
 ## MCP Extension/Client Integration
 
@@ -147,8 +147,7 @@ To use this server with the MCP extension or compatible clients, add the followi
 
 ## Configuration Variables
 
-- `POLICY_PATH`: Path to the policy YAML file. Defaults to `./prompts/policy.prompt.yaml` but can be overridden in your `.env` file or MCP config.
-- `RUDE_WORDS`: Comma-separated list of rude/abusive words for policy enforcement. Set in `.env` or MCP config.
+- `POLICY_RELOAD_INTERVAL`: Interval (in seconds) to check for policy changes (if needed).
 
 ## Important: VS Code, Dev Containers, and Python Environments
 
@@ -309,7 +308,11 @@ The Docker Compose file mounts both files into the OPA container at `/policies/`
 - `policy.rego` implements the actual policy logic (see `config/policy.rego`).
 - `policy.json` provides structured data for policy descriptions and can be referenced in Rego if needed.
 
-**If you update `policy.prompt.yaml`, you should regenerate `policy.json` to keep the data in sync.**
+**If you update `policy.rego`, reload the OPA server to apply changes.**
+
+## References
+
+See [REFERENCES.md](./REFERENCES.md) for a list of all external standards, libraries, and documentation referenced by this project, including MCP, OPA, OTEL, FastMCP, Docker, and more.
 
 # Security Practices
 

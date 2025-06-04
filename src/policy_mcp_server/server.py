@@ -7,7 +7,6 @@
 # AI WARNING: This file is generated with AI assistance. Please review and verify the content before use.
 
 import os
-import yaml
 import threading
 import time
 import importlib.util
@@ -59,21 +58,12 @@ class PolicyMCPServer:
     """
     def __init__(self):
         self.settings = SettingsManager().get_settings()
-        self.RUDE_WORDS = [w.strip() for w in getattr(self.settings, "RUDE_WORDS", "suck,idiot,stupid,hate you,shut up,dumb,moron,loser,fool,bastard,jerk,screw you,worthless,useless").split(",")]
-        self.POLICY_PATH = os.path.abspath(getattr(self.settings, "POLICY_PATH", os.path.join(os.path.dirname(__file__), '../prompts/policy.prompt.yaml')))
-        self.RELOAD_INTERVAL = int(getattr(self.settings, "POLICY_RELOAD_INTERVAL", 30))
-        with open(self.POLICY_PATH, 'r') as f:
-            self.POLICY_CACHE = yaml.safe_load(f)
-        self._last_policy_mtime = os.path.getmtime(self.POLICY_PATH)
-        threading.Thread(target=self._auto_reload_policy, daemon=True).start()
         try:
             from fastmcp import FastMCP
         except ImportError:
             raise ImportError("fastMCP SDK is not installed. Please install it from https://github.com/jlowin/fastmcp.")
         self.mcp = FastMCP(name="MyServer")
         self.mcp.tool()(log_around(self.greet))
-        self.mcp.tool()(log_around(self.reload_policy_tool))
-        self.mcp.tool()(log_around(self.enforce_policy))
         self.mcp.tool()(log_around(self.enforce_policy_opa))
 
     @log_around
@@ -90,52 +80,23 @@ class PolicyMCPServer:
     @log_around
     def reload_policy(self) -> None:
         """
-        Reload the policy from disk into the global cache.
-        Returns:
-            None
+        Deprecated: Policy reload is not needed. Policy is managed by OPA.
         """
-        with open(self.POLICY_PATH, 'r') as f:
-            self.POLICY_CACHE = yaml.safe_load(f)
+        pass
 
     @log_around
     def reload_policy_tool(self) -> str:
         """
-        Reload the policy.prompt.yaml file from disk via MCP tool interface.
-        Returns:
-            str: Success or error message.
+        Deprecated: Policy reload is not needed. Policy is managed by OPA.
         """
-        try:
-            self.reload_policy()
-            return "Policy reloaded successfully."
-        except Exception as e:
-            return f"Failed to reload policy: {e}"
+        return "Policy reload is not needed. Policy is managed by OPA."
 
     @otel_trace("enforce_policy")
     @log_around
     def enforce_policy(self, action: str, context: dict = None) -> dict:
         """
-        Check if the requested action or prompt is compliant with the policy.prompt.yaml file.
-        Args:
-            action (str): The action/tool name or user prompt to check.
-            context (dict, optional): Additional context for the action (parameters, user info, etc).
-        Returns:
-            dict: {'result': 'compliant'} if allowed, or {'result': 'not compliant', 'reason': ...}
+        Deprecated: Policy is now enforced by OPA. This method always returns compliant.
         """
-        policy = self.POLICY_CACHE
-        policies = policy.get('policies', [])
-        input_text = action.lower()
-        if context and 'prompt' in context:
-            input_text += ' ' + context['prompt'].lower()
-        # Check for rude/abusive/disrespectful language
-        for p in policies:
-            desc = p.get('description', '').lower()
-            if (
-                'rude' in desc or 'abusive' in desc or 'disrespectful' in desc
-            ) and any(word in input_text for word in self.RUDE_WORDS):
-                return {'result': 'not compliant', 'reason': "Prompt is not compliant: violates policy 'Respectful Language'."}
-            if 'must not ask where waldo' in desc and 'where is waldo' in input_text:
-                return {'result': 'not compliant', 'reason': "Prompt is not compliant: violates policy 'Test'."}
-        # Default allow: only block if a violation is detected
         return {'result': 'compliant'}
 
     def _run_async(self, coro):
@@ -195,20 +156,9 @@ class PolicyMCPServer:
     @log_around
     def _auto_reload_policy(self):
         """
-        Background thread function to automatically reload the policy file if it changes.
-        Returns:
-            None
+        Deprecated: Policy reload is not needed. Policy is managed by OPA.
         """
-        while True:
-            try:
-                mtime = os.path.getmtime(self.POLICY_PATH)
-                if mtime != self._last_policy_mtime:
-                    with open(self.POLICY_PATH, 'r') as f:
-                        self.POLICY_CACHE = yaml.safe_load(f)
-                    self._last_policy_mtime = mtime
-            except Exception:
-                pass
-            time.sleep(self.RELOAD_INTERVAL)
+        pass
 
 if __name__ == "__main__":
     PolicyMCPServer().mcp.run()
