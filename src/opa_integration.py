@@ -47,7 +47,7 @@ class OPAClient:
             opa_url or
             (settings.OPA_URL if settings and hasattr(settings, "OPA_URL") else None) or
             os.getenv("OPA_URL") or
-            "http://localhost:8181"
+            "http://localhost:8181"  # Default OPA URL if not set
         )
         self.policy_package = (
             policy_package or
@@ -76,6 +76,7 @@ class OPAClient:
             requests.exceptions.RequestException: For network errors, timeouts, etc.
         """
         url = f"{self.opa_url}/v1/data/{package or self.policy_package}/{rule or self.policy_rule}"
+        logger.info(f"OPAClient querying OPA at URL: {url}")
         loop = asyncio.get_event_loop()
         def _post():
             try:

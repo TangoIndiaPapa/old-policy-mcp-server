@@ -8,7 +8,7 @@
 
 import os
 from pydantic_settings import BaseSettings
-from policy_mcp_server.logging_utils import log_around, logger
+from logging_utils import log_around
 
 @log_around
 class SettingsManager:

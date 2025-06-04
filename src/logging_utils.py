@@ -10,6 +10,7 @@ import logging
 import functools
 import sys
 import os
+from logging.handlers import RotatingFileHandler
 
 # OTEL imports
 try:
@@ -36,13 +37,16 @@ os.makedirs(LOGS_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOGS_DIR, 'policy-mcp-server.log')
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO').upper()
 
+# Use RotatingFileHandler for log rotation (10 MB per file, keep 5 backups)
+file_handler = RotatingFileHandler(LOG_FILE, maxBytes=10*1024*1024, backupCount=5, encoding='utf-8')
+file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+
+stream_handler = logging.StreamHandler(sys.stderr)
+stream_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+
 logging.basicConfig(
     level=LOG_LEVEL,
-    format=LOG_FORMAT,
-    handlers=[
-        logging.FileHandler(LOG_FILE, encoding='utf-8'),
-        logging.StreamHandler(sys.stderr),  # Send logs to stderr, not stdout
-    ]
+    handlers=[file_handler, stream_handler]
 )
 
 logger = logging.getLogger("policy-mcp-server")

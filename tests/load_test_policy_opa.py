@@ -1,7 +1,18 @@
 import time
-from policy_mcp_server.server import PolicyMCPServer
+import importlib.util
+import os
+import sys
 
-def light_load_test(iterations=1000):
+from test_constants import SERVER_PATH
+
+spec_server = importlib.util.spec_from_file_location("server", SERVER_PATH)
+server_mod = importlib.util.module_from_spec(spec_server)
+spec_server.loader.exec_module(server_mod)
+PolicyMCPServer = server_mod.PolicyMCPServer
+
+ITERATIONS=1000
+
+def light_load_test(iterations=ITERATIONS):
     server = PolicyMCPServer()
     actions = [
         "where is waldo?",

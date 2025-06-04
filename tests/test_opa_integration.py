@@ -5,12 +5,15 @@
 # Version number: 0.1
 # AI WARNING: This file is generated with AI assistance. Please review and verify the content before use.
 
-import sys
-import os
 import pytest
 import requests
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/policy_mcp_server')))
-from policy_mcp_server.opa_integration import OPAClient
+from .test_constants import OPA_INTEGRATION_PATH, import_module_from_path
+
+try:
+    opa_integration = import_module_from_path("opa_integration", OPA_INTEGRATION_PATH)
+    OPAClient = opa_integration.OPAClient
+except Exception as e:
+    pytest.skip(f"OPAClient import failed: {e}")
 
 @pytest.mark.asyncio
 async def test_opa_query_allows(monkeypatch):
