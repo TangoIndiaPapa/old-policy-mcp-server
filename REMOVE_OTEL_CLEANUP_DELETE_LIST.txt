@@ -1,0 +1,7 @@
+src/otel_setup.py
+tests/test_otel_setup.py
+docker-compose-otel.yaml
+config/otel-collector-config.yaml
+config/prometheus.yml
+# All OTEL and Prometheus environment variables have been removed from .env.example.
+# Please also remove any OTEL_* and Prometheus-related variables from your actual .env file if present.

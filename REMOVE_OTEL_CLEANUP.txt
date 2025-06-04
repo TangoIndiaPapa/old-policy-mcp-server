@@ -1,0 +1,18 @@
+OTEL and Prometheus removal plan:
+- Remove src/otel_setup.py
+- Remove tests/test_otel_setup.py
+- Remove docker-compose-otel.yaml
+- Remove config/otel-collector-config.yaml
+- Remove config/prometheus.yml
+- Remove all OTEL/Prometheus references from:
+  - src/server.py
+  - src/settings.py
+  - src/logging_utils.py
+  - README.md
+  - pytest.ini
+  - pyproject.toml
+  - .env.example
+  - prompts/task-otel.plan.yml
+  - prompts/task-otel-prompt.yaml
+- Remove any other files or configs related to OTEL/Prometheus
+- Commit all changes on feature/remove-otel branch

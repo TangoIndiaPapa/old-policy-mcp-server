@@ -203,48 +203,6 @@ def my_tool(...):
 
 See `src/server.py` for examples.
 
-## OpenTelemetry (OTEL) Observability & Tracing
-
-This server is instrumented with [OpenTelemetry](https://opentelemetry.io/docs/languages/python/) for distributed tracing, metrics, and observability. All configuration is managed via `.env` and the `SettingsManager` (see `.env.example`).
-
-### Features
-- **Tracing:** All requests and policy enforcement actions are traced using OTEL. Traces are exported to the configured OTLP endpoint.
-- **Metrics:** Key server metrics are exported via OTLP and Prometheus. Prometheus scraping is enabled by default.
-- **Graceful Degradation:** If the OTEL collector is unavailable, the server logs a warning and continues running without blocking.
-- **Data Sanitization:** All trace and metric data is sanitized to avoid leaking sensitive information.
-
-### Configuration
-Set the following variables in your `.env` file (see `.env.example`):
-
-```
-OTEL_SERVICE_NAME=policy-mcp-server
-OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
-OTEL_EXPORTER_OTLP_PROTOCOL=grpc
-OTEL_TRACES_SAMPLER=parentbased_always_on
-OTEL_TRACES_SAMPLER_ARG=1.0
-OTEL_METRICS_EXPORT_INTERVAL=60000
-OTEL_RESOURCE_ATTRIBUTES=deployment.environment=dev
-```
-
-### Metrics & Prometheus
-- The server exposes Prometheus metrics via the OpenTelemetry Prometheus exporter.
-- Configure your Prometheus server to scrape the metrics endpoint as needed.
-
-### Troubleshooting
-- If the OTEL collector is down or unreachable, the server will log a warning but continue to operate.
-- Check logs for messages like `OTEL setup failed or degraded gracefully` for diagnostics.
-- Ensure all OTEL environment variables are set correctly in `.env`.
-- For more details, see [OpenTelemetry Python Docs](https://opentelemetry.io/docs/languages/python/).
-
-### Testing OTEL Integration
-- Run `pytest` to verify all OTEL setup and graceful degradation scenarios are covered.
-- You can also check your OTEL backend (Jaeger, Prometheus, etc.) for traces and metrics from `policy-mcp-server`.
-
-### Assumptions
-- No zero-code/monkey patching is used; all instrumentation is explicit and modular.
-- All OTEL config is managed via `.env` and Pydantic settings.
-- The code is compatible with OpenTelemetry Python SDK 1.33.1 and Prometheus exporter 0.54b1.
-
 ## OPA (Open Policy Agent) Integration
 
 This server supports policy enforcement using [Open Policy Agent (OPA)](https://www.openpolicyagent.org/). OPA is run as a sidecar (Docker container) and all policy decisions are delegated to OPA via REST API.

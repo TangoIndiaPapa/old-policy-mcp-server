@@ -1,30 +1,9 @@
 # File Name: task-otel.plan.yml
-# File description: OpenTelemetry (OTEL) integration for observability, tracing, and metrics in the MCP server.
+# File description: OpenTelemetry (OTEL) integration plan for observability, tracing, and metrics in the MCP server.
 # Source prompt file: task-otel.prompt.yaml
-# Author: AI Generated
-# Date created: 2025-06-03
-# Version number: 0.1
+# Author: AI Generated, updated for project-specific best practices
+# Date updated: 2025-06-04
+# Version number: 0.2
 # AI WARNING: This file is generated with AI assistance. Please review and verify the content before use.
 
-ai_implementation_plan:
-  - Confirm you are on the 'feature/otel-integration' branch and in the correct project directory before making any changes.
-  - Install the OpenTelemetry Python SDK and Prometheus exporter using the project requirements file or pip/uv.
-  - Add all OTEL configuration variables to `.env` and `.env.example` (e.g., OTEL_SERVICE_NAME, OTEL_EXPORTER_OTLP_ENDPOINT, etc.).
-  - Create or update a centralized OTEL setup module (e.g., `src/otel_setup.py`) with header comments, following the style of `src/server.py`.
-  - In the OTEL setup module:
-      - Initialize OTEL tracing and metrics providers at server startup.
-      - Configure OTLP exporter and Prometheus exporter using environment variables or config manager.
-      - Set up a tracer provider and meter provider with appropriate resource attributes.
-      - Ensure all instrumentation (FastAPI, requests, etc.) is enabled and configured.
-      - Add a Prometheus metrics endpoint to the server if not already present.
-      - Ensure all OTEL exporters and instrumentations degrade gracefully if the collector is down or unreachable (log a warning, do not crash).
-  - Import and call the OTEL setup module at the top of `src/server.py` before any business logic runs.
-  - Use the `log_around` decorator and/or explicit OTEL spans for key server methods and policy enforcement logic.
-  - Write unit and integration tests for OTEL setup and graceful degradation, using pytest and mocking as needed.
-  - Update the README with OTEL integration details, configuration, and troubleshooting instructions.
-
-constraints:
-  - Do not change the main and major functionalities of the MCP server or FastMCP SDK implementation for the sake of OTEL.
-  - Do not change the existing Logging framework or configuration.
-  - Do not change the existing error handling and reporting mechanisms.
-  - Do not make any other assumptions about the server architecture or existing codebase.
+# OTEL plan removed

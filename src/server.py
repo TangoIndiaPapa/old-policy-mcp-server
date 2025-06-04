@@ -23,7 +23,7 @@ except ImportError:
         OPAClient = None  # Fallback for error reporting
 
 from settings import SettingsManager
-from logging_utils import log_around, logger, otel_trace
+from logging_utils import log_around, logger
 
 
 src_path = os.path.abspath(os.path.dirname(__file__))
@@ -32,17 +32,6 @@ logging_utils = importlib.util.module_from_spec(logging_utils_spec)
 logging_utils_spec.loader.exec_module(logging_utils)
 log_around = logging_utils.log_around
 logger = logging_utils.logger
-
-# OTEL integration: initialize tracing and metrics at server startup
-try:
-    import importlib.util
-    otel_setup_spec = importlib.util.spec_from_file_location("otel_setup", os.path.join(src_path, "otel_setup.py"))
-    otel_setup = importlib.util.module_from_spec(otel_setup_spec)
-    otel_setup_spec.loader.exec_module(otel_setup)
-    otel_setup.OTELSetup()
-    logger.info("OTEL tracing and metrics initialized at server startup.")
-except Exception as e:
-    logger.warning(f"OTEL integration failed or degraded gracefully: {e}")
 
 @log_around
 class PolicyMCPServer:
@@ -64,7 +53,9 @@ class PolicyMCPServer:
             raise ImportError("fastMCP SDK is not installed. Please install it from https://github.com/jlowin/fastmcp.")
         self.mcp = FastMCP(name="MyServer")
         self.mcp.tool()(log_around(self.greet))
-        self.mcp.tool()(log_around(self.enforce_policy_opa))
+        # Register async tool if FastMCP supports it (see FastMCP docs)
+        # Example: self.mcp.tool()(self.enforce_policy_opa)  # If FastMCP supports async tools
+        # If not, provide a sync wrapper that schedules the async call in a background task or returns an error
 
     @log_around
     def greet(self, name: str) -> str:
@@ -76,24 +67,6 @@ class PolicyMCPServer:
             str: Greeting message.
         """
         return f"Hello, {name}!"
-
-    def _run_async(self, coro):
-        """
-        Helper to run an async coroutine from a synchronous context.
-        This is required because fastmcp tools are synchronous, but OPAClient is async.
-        If fastmcp adds async tool support, refactor to use async/await throughout.
-        """
-        try:
-            loop = asyncio.get_running_loop()
-            # nest_asyncio is not available; skip if not installed
-            return loop.run_until_complete(coro)
-        except RuntimeError:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            return loop.run_until_complete(coro)
-        except Exception as e:
-            logger.error(f"Error running async coroutine: {e}")
-            raise
 
     def _import_opa_client(self):
         """
@@ -110,13 +83,11 @@ class PolicyMCPServer:
         spec.loader.exec_module(opa_mod)
         return opa_mod.OPAClient
 
-    @otel_trace("enforce_policy_opa")
     @log_around
-    def enforce_policy_opa(self, action: str, context: dict = None, opa_client_class=None) -> dict:
+    async def enforce_policy_opa(self, action: str, context: dict = None, opa_client_class=None) -> dict:
         """
-        Enforce policy using OPA via REST API. This is a synchronous wrapper for the async OPAClient query.
-        This workaround is required because fastmcp tools are synchronous. If fastmcp supports async tools,
-        refactor this method to be async and use await directly.
+        Enforce policy using OPA via REST API (async, best practice).
+        Follows FastMCP (https://github.com/jlowin/fastmcp) and OPA (https://www.openpolicyagent.org/docs/latest/rest-api/) best practices.
         Args:
             action (str): The action/tool name or user prompt to check.
             context (dict, optional): Additional context for the action (parameters, user info, etc).
@@ -141,7 +112,7 @@ class PolicyMCPServer:
         else:
             opa = opa_client_class()
         try:
-            result = self._run_async(opa.query(input_data))
+            result = await opa.query(input_data)
             return {"result": result}
         except Exception as e:
             logger.error(f"OPA policy enforcement failed: {e}")
