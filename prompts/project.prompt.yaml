@@ -1,4 +1,4 @@
-# Project Prompt and Prime Directive for MCP Server
+# Project Prompt and Instruction for MCP Server
 file_id: "project.prompt.yaml"
 document_version: 0.1
 generated: 2025-06-02T16:17:00Z
@@ -11,6 +11,14 @@ ai_assistance:
   session_id: "befcc2a9-891b-4b30-8bc3-a3ca1428fc39"
   session_timestamp: "2025-06-02T16:17:00Z"
   purpose: "Project prompt for MCP server code and documentation generation"
+
+project_info:
+  name: "Policy MCP Server"
+  directory: "./mcp-servers/policy-mcp-server"
+  description: "A Model Context Protocol (MCP) server that implements policy enforcement using Open Policy Agent (OPA) and follows the FAST MCP specification."
+  version: "0.1"
+  git_branch: "feature/policy-mcp-server"
+  
 
 # Add further project-specific requirements, roles, or mission sections below as needed.
 your_role:

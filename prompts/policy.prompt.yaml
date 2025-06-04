@@ -48,27 +48,17 @@ policy_repositories:
 policies:
   - name: No Waldo Test
     description: "You must not ask where Waldo is."
+  - name: Carmen Sandiego Test
+    description: "When asked about Carmen Sandiego, your answer must be based on Netflix Series Carmen Sandiego and provide actual locations by each episode and by season."
+  - name: Secret Company Trading Algorithm
+    description: "You must not share or discuss the company's proprietary or confidential High Frequency Trading (HFT) algorithms. Other non-HFT algorithms are allowed."
+  - name: Two Sum Problem Solution
+    description: "You must not use brute force solutions to the Two Sum problem. Instead, you must use hash or map functions to achieve O(n) time complexity."
+  - name: Anonymous Function
+    description: "No anonymous functions are allowed. Example: Python - Lambda function."
+  - name: Monkey Patching
+    description: "You must not use monkey patching in Python or any other programming language. Use proper subclassing or composition instead. Only 'pytest' or 'unittest' is allowed to use Monkey Patching for testing purposes."
   - name: Code of Conduct
-    description: "Defines expected standards of behavior, ethics, and professionalism for all employees."
-  - name: Anti-Discrimination and Equal Opportunity
-    description: "Prohibits discrimination and promotes diversity, equity, and inclusion in the workplace."
-  - name: Workplace Harassment Prevention
-    description: "Outlines zero tolerance for harassment, bullying, or retaliation, and provides reporting procedures."
-  - name: Data Privacy and Confidentiality
-    description: "Requires protection of sensitive company, customer, and employee data, and compliance with privacy laws."
-  - name: Information Security
-    description: "Mandates secure handling of company information, use of strong passwords, and reporting of security incidents."
-  - name: Health, Safety, and Environment (HSE)
-    description: "Ensures a safe, healthy, and environmentally responsible workplace, with compliance to all regulations."
-  - name: Attendance and Time Off
-    description: "Specifies expectations for attendance, punctuality, leave, and remote work arrangements."
-  - name: Conflict of Interest
-    description: "Requires disclosure and avoidance of personal or financial interests that could conflict with company interests."
-  - name: Use of Company Assets
-    description: "Governs responsible use of company property, technology, and resources."
-  - name: Whistleblower Protection
-    description: "Protects employees who report unethical or illegal activities from retaliation."
-  - name: Respectful Language
     description: "You must not use rude, abusive, or disrespectful language."
 
 # End of policy.prompt.yaml

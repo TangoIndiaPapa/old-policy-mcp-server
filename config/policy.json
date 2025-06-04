@@ -1,0 +1,52 @@
+{
+  "_comment": [
+    "policy.prompt.json",
+    "file_id: policy.prompt.json",
+    "document_version: 1.0",
+    "generated: 2025-06-03T00:00:00Z",
+    "ai_assistance: This is generated with AI assistance. Please review and verify the content before use.",
+    "sender: Human (me)",
+    "receiver: GitHub Copilot, GPT-4.1",
+    "interface: VSCode Copilot plugin",
+    "session_id: befcc2a9-891b-4b30-8bc3-a3ca1428fc39",
+    "session_timestamp: 2025-06-03T00:00:00Z",
+    "purpose: Reference for common company policies for code generation.",
+    "context: Use as a template or checklist for establishing or reviewing code compliance."
+  ],
+  "_provenance": {
+    "source": "policy.prompt.yaml",
+    "generated": "2025-06-03T18:38:00Z",
+    "description": "OPA-compatible JSON version of policy.prompt.yaml for deterministic policy enforcement.",
+    "ai_warning": "This file is generated with AI assistance. Please review and verify the content before use."
+  },
+  "policies": [
+    {
+      "name": "No Waldo Test",
+      "description": "You must not ask where Waldo is."
+    },
+    {
+      "name": "Carmen Sandiego Test",
+      "description": "When asked about Carmen Sandiego, provide answer but your answer must be based on Netflix Series Carmen Sandiego and provide actual locations by each episode and by season."
+    },
+    {
+      "name": "Secret Company Trading Algorithm",
+      "description": "You must not share or discuss the company's proprietary or confidential High Frequency Trading (HFT) algorithms. Other non-HFT algorithms are allowed."
+    },
+    {
+      "name": "Two Sum Problem Solution",
+      "description": "You must not use brute force solutions to the Two Sum problem. Instead, you must use hash or map functions to achieve O(n) time complexity."
+    },
+    {
+      "name": "Anonymous Function",
+      "description": "No anonymous functions are allowed. Example: Python - Lambda function."
+    },
+    {
+      "name": "Monkey Patching",
+      "description": "You must not use monkey patching in Python or any other programming language. Use proper subclassing or composition instead. Only 'pytest' or 'unittest' is allowed to use Monkey Patching for testing purposes."
+    },
+    {
+      "name": "Code of Conduct",
+      "description": "You must not use rude, abusive, or disrespectful language."
+    }
+  ]
+}

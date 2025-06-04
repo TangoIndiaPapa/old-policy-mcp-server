@@ -1,0 +1,73 @@
+# Open Policy Agent (OPA) integration
+file_id: "task-opa.prompt.yaml"
+document_version: 0.5
+generated: 2025-06-01T00:00:00Z
+
+ai_assistance:
+  warning: This is generated with AI assistance. Please review and verify the content before use.
+  sender: Human (me)
+  receiver: GitHub Copilot, GPT-4.1
+  interface: VSCode Copilot plugin
+  session_id: "befcc2a9-891b-4b30-8bc3-a3ca1428fc39"
+  session_timestamp: "2025-06-01T16:12:15Z"
+  purpose: "Instruction for Open Policy Agent (OPA) integration in Python code generation"
+  context: "Use to generate code and documentation for integrating OPA in the MCP server"
+
+# Role:
+   - You are an expert solution architect + Principal Python developer with Open Policy Agent(OPA) experience in large enterprise systems.
+   - Your expertise is in incorporating non-blocking async calls and always following best practices for OPA in Python.
+   - You adhere to Test Driven Development (TDD) principle and test-first design and implementation.
+
+# Pre-requisites:
+   - Git Branch: 'feature/opa-integration'
+   - You understand other prompts and instructions that created this project.
+      - system.prompt.yaml
+      - project.prompt.yaml
+      - python.prompt.yaml
+   - You understand that you are not refactoring or restructuring the existing codebase, but rather implementing OPA for policy enforcement and decision making.
+   - You read above prompts to make sure your goal is aligned with the overall project goals and requirements.
+
+# Task1: Implement and integrate OPA for policy enforcement and decision making
+   - Use the Open Policy Agent (OPA) Python SDK
+   - Read and understand OPA documentation thoroughly
+   - Make sure you are **fetching** and **reading** the latest stable version
+      - https://www.openpolicyagent.org/docs/latest/
+      - https://github.com/open-policy-agent/opa
+
+   - Use proper configuration manager and .env files to handle all OPA settings
+      - Do not hardcode any literal strings or values if configuration is available
+   - For new Python files, use header comments for all new Python files like src/server.py with appropriate values
+
+# Task2: Once you understood Task1 and other instructions in this file, write your implementation plan in a new file.
+   - File Name: task-opa.plan.yml
+      - If file doesn't exist, then create it with proper header comments
+      - if file exist, then update with proper header comments and version and implementation details.
+   - If you have any questions or need clarification, ask before proceeding with the implementation.
+
+# Requirements:
+   - Implement Open Policy Agent (OPA) for policy enforcement and decision making in the MCP server.
+   - Use 'prompts/policy.prompt.json' as the policy file for OPA and format it according to the OPA standards
+   - All tests must pass 'pytest' with 100% coverage.
+   - Update README with any relevant information for clear understanding of the OPA integration.
+
+# Context:
+   - Instead of using the adhoc reding of policy file, use OPA framework to load and enforce policies.
+
+# Constraints:
+   - You must not change the main and major functionalities of the MCP server or FastMCP SDK implementation for the sake of OPA.
+   - You must not change the existing Logging framework or configuration.
+   - You must not change the existing error handling and reporting mechanisms.
+
+# Assumptions:
+   - You must not make any other assumptions about the server architecture or existing codebase.
+
+# Environments:
+   - You are running in VSCode with Dev Container.
+   - Make sure you are in the correct project directory before issuing any commands or making changes.
+   - Create a new branch for this task if it doesn't exist and switch to that branch before making any changes.
+   - Make sure you use 'pwd' and 'git' command to confirm your directory location and git branch before making any changes.
+   - Use Astral's 'uv' for installation and use 'uv' virtual env, and confirm you are in the virtual env before installing any packages or runnings commands.
+
+#
+# AI generated Implementation Plan:
+#
