@@ -6,8 +6,13 @@
 # Version number: 1.0
 # AI WARNING: This file is generated with AI assistance. Please review and verify the content before use.
 
-import pytest
-from policy_mcp_server.server import PolicyMCPServer
+import importlib.util
+from .test_constants import SERVER_PATH
+
+spec_server = importlib.util.spec_from_file_location("server", SERVER_PATH)
+server_mod = importlib.util.module_from_spec(spec_server)
+spec_server.loader.exec_module(server_mod)
+PolicyMCPServer = server_mod.PolicyMCPServer
 
 server = PolicyMCPServer()
 

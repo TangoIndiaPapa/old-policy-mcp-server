@@ -20,8 +20,8 @@ from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExp
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 import logging
 
-from policy_mcp_server.settings import SettingsManager
-from policy_mcp_server.logging_utils import logger
+from settings import SettingsManager
+from logging_utils import logger
 
 class OTELSetup:
     """

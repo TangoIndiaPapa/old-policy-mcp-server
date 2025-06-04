@@ -7,21 +7,15 @@ Version: 1.0
 
 These tests validate that OTELSetup initializes correctly and degrades gracefully if the collector is unavailable.
 """
-import os
 import pytest
-import importlib.util
-
-SRC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/policy_mcp_server'))
-OTEL_SETUP_PATH = os.path.join(SRC_PATH, 'otel_setup.py')
+from .test_constants import OTEL_SETUP_PATH, import_module_from_path
 
 @pytest.mark.usefixtures("monkeypatch")
 def test_otel_setup_initializes(monkeypatch):
     """
     Test that OTELSetup initializes without raising exceptions when config is valid.
     """
-    spec = importlib.util.spec_from_file_location("otel_setup", OTEL_SETUP_PATH)
-    otel_setup = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(otel_setup)
+    otel_setup = import_module_from_path("otel_setup", OTEL_SETUP_PATH)
     try:
         otel_setup.OTELSetup()
     except Exception as e:
@@ -39,9 +33,7 @@ def test_otel_setup_collector_down(monkeypatch, caplog):
     otel_logger = logging.getLogger("opentelemetry.sdk.trace.export")
     otel_logger.setLevel(logging.WARNING)
     otel_logger.propagate = True
-    spec = importlib.util.spec_from_file_location("otel_setup", OTEL_SETUP_PATH)
-    otel_setup = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(otel_setup)
+    otel_setup = import_module_from_path("otel_setup", OTEL_SETUP_PATH)
     with caplog.at_level("WARNING", logger="opentelemetry.sdk.trace.export"):
         otel_setup.OTELSetup()
         tracer = otel_setup.trace.get_tracer(__name__)

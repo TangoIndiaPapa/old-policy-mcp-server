@@ -5,28 +5,13 @@
 # Version number: 0.1
 # AI WARNING: This file is generated with AI assistance. Please review and verify the content before use.
 
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-
-import importlib.util
-
-SRC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/policy_mcp_server'))
-SERVER_PATH = os.path.join(SRC_PATH, 'server.py')
-OPA_PATH = os.path.join(SRC_PATH, 'opa_integration.py')
-
-spec_server = importlib.util.spec_from_file_location("server", SERVER_PATH)
-server_mod = importlib.util.module_from_spec(spec_server)
-spec_server.loader.exec_module(server_mod)
-PolicyMCPServer = server_mod.PolicyMCPServer
-
-spec_opa = importlib.util.spec_from_file_location("opa_integration", OPA_PATH)
-opa_mod = importlib.util.module_from_spec(spec_opa)
-spec_opa.loader.exec_module(opa_mod)
-OPAClient = opa_mod.OPAClient
-
 import pytest
-from policy_mcp_server.server import PolicyMCPServer
+from .test_constants import SERVER_PATH, OPA_INTEGRATION_PATH, import_module_from_path
+
+server_mod = import_module_from_path("server", SERVER_PATH)
+PolicyMCPServer = server_mod.PolicyMCPServer
+opa_mod = import_module_from_path("opa_integration", OPA_INTEGRATION_PATH)
+OPAClient = opa_mod.OPAClient
 
 @pytest.mark.parametrize("action,expected", [
     ("where is Waldo?", False), ## denied in policy.reg

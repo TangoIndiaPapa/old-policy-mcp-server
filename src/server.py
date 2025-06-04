@@ -22,8 +22,8 @@ except ImportError:
     except ImportError:
         OPAClient = None  # Fallback for error reporting
 
-from policy_mcp_server.settings import SettingsManager
-from policy_mcp_server.logging_utils import log_around, logger, otel_trace
+from settings import SettingsManager
+from logging_utils import log_around, logger, otel_trace
 
 
 src_path = os.path.abspath(os.path.dirname(__file__))
@@ -77,28 +77,6 @@ class PolicyMCPServer:
         """
         return f"Hello, {name}!"
 
-    @log_around
-    def reload_policy(self) -> None:
-        """
-        Deprecated: Policy reload is not needed. Policy is managed by OPA.
-        """
-        pass
-
-    @log_around
-    def reload_policy_tool(self) -> str:
-        """
-        Deprecated: Policy reload is not needed. Policy is managed by OPA.
-        """
-        return "Policy reload is not needed. Policy is managed by OPA."
-
-    @otel_trace("enforce_policy")
-    @log_around
-    def enforce_policy(self, action: str, context: dict = None) -> dict:
-        """
-        Deprecated: Policy is now enforced by OPA. This method always returns compliant.
-        """
-        return {'result': 'compliant'}
-
     def _run_async(self, coro):
         """
         Helper to run an async coroutine from a synchronous context.
@@ -107,8 +85,7 @@ class PolicyMCPServer:
         """
         try:
             loop = asyncio.get_running_loop()
-            import nest_asyncio
-            nest_asyncio.apply()
+            # nest_asyncio is not available; skip if not installed
             return loop.run_until_complete(coro)
         except RuntimeError:
             loop = asyncio.new_event_loop()
@@ -117,6 +94,21 @@ class PolicyMCPServer:
         except Exception as e:
             logger.error(f"Error running async coroutine: {e}")
             raise
+
+    def _import_opa_client(self):
+        """
+        Dynamically import OPAClient from src/opa_integration.py for cross-platform compatibility.
+        Returns:
+            OPAClient class or raises ImportError.
+        """
+        import importlib.util
+        import os
+        src_dir = os.path.abspath(os.path.dirname(__file__))
+        opa_path = os.path.join(src_dir, "opa_integration.py")
+        spec = importlib.util.spec_from_file_location("opa_integration", opa_path)
+        opa_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(opa_mod)
+        return opa_mod.OPAClient
 
     @otel_trace("enforce_policy_opa")
     @log_around
@@ -132,11 +124,13 @@ class PolicyMCPServer:
         Returns:
             dict: OPA decision result or error.
         """
+        if context is None:
+            context = {}
         if opa_client_class is None:
             try:
-                from policy_mcp_server.opa_integration import OPAClient as opa_client_class
-            except ImportError:
-                logger.error("OPAClient import failed in enforce_policy_opa.")
+                opa_client_class = self._import_opa_client()
+            except Exception as e:
+                logger.error(f"OPAClient import failed in enforce_policy_opa: {e}")
                 return {"result": "error", "reason": "OPAClient import failed"}
         input_data = {"action": action}
         if context:
@@ -152,13 +146,6 @@ class PolicyMCPServer:
         except Exception as e:
             logger.error(f"OPA policy enforcement failed: {e}")
             return {"result": "error", "reason": str(e)}
-
-    @log_around
-    def _auto_reload_policy(self):
-        """
-        Deprecated: Policy reload is not needed. Policy is managed by OPA.
-        """
-        pass
 
 if __name__ == "__main__":
     PolicyMCPServer().mcp.run()
