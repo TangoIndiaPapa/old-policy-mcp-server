@@ -20,9 +20,10 @@ OPAClient = opa_mod.OPAClient
     ("useless", False), ## denied in policy.reg
     ("normal stuff not in policy", True), ## ALLOWED in policy.reg
 ])
-def test_enforce_policy_opa_real_opa(action, expected):
+@pytest.mark.asyncio
+async def test_enforce_policy_opa_real_opa(action, expected):
     server = PolicyMCPServer()
-    result = server.enforce_policy_opa(action)
+    result = await server.enforce_policy_opa(action)
     if result.get("result") == "error":
         pytest.exit(f"OPA server is not available or returned error: {result.get('reason')}", returncode=1)
     assert result["result"] == expected
